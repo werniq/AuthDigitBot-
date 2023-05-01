@@ -10,6 +10,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"time"
+
 	//rudderfish.aternos.host:34500
 	"syscall"
 )
@@ -43,17 +45,21 @@ func main() {
 	}
 
 	bott.Identify.Intents = discordgo.IntentsGuildMessages
-	bott.Identify.Intents = discordgo.IntentsGuilds | discordgo.IntentsGuildMessages | discordgo.IntentsGuildMembers | discordgo.IntentsGuildPresences
+	bott.Identify.Intents = discordgo.IntentsGuilds | discordgo.IntentsGuildMessages | discordgo.IntentsGuildMembers | discordgo.IntentsGuildPresences | discordgo.IntentsDirectMessages
 
 	//bott.AddHandler(app.GenerateBlikCode)
-	bott.AddHandler(app.SaveMessage)
 	bott.AddHandler(app.AntiSpamFunction)
+
+	time.Sleep(1 * time.Second)
+
+	bott.AddHandler(app.SaveMessage)
 	bott.AddHandler(app.RewardForMessages)
 	bott.AddHandler(app.CheckUserIPAddressChanging)
 	bott.AddHandler(app.CheckUserActivity)
 	bott.AddHandler(app.OnVoiceStateUpdate)
 
 	bott.AddHandler(app.Register)
+	bott.AddHandler(app.ListenDmRegisterCommand)
 	bott.AddHandler(app.Stop)
 	bott.AddHandler(app.FindCorrectAnswersForQuiz)
 	bott.AddHandler(app.CreateQuiz)

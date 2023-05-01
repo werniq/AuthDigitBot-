@@ -23,7 +23,7 @@ func (app *Application) Register(s *discordgo.Session, m *discordgo.MessageCreat
 			return
 		}
 
-		welcomeMessage := fmt.Sprintf("Приветствуем на сервере, <@%v>! Для того, чтобы получить доступ к каналам, вам необходимо зарегистрироваться. Для этого введите команду /register <username> <password>", m.Author.Mention())
+		welcomeMessage := fmt.Sprintf("Приветствуем на сервере, <%v>! Для того, чтобы получить доступ к каналам, вам необходимо зарегистрироваться. Для этого введите команду /register <username> <password>", m.Author.Mention())
 
 		s.ChannelMessageSend(channel.ID, welcomeMessage)
 	}
@@ -49,9 +49,10 @@ func (app *Application) ListenDmRegisterCommand(s *discordgo.Session, m *discord
 
 		member, err := s.GuildMember(m.GuildID, m.Author.ID)
 		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Something went wrong "+err.Error()+" ... Try again later.")
+			s.ChannelMessageSend(m.ChannelID, "Вы не состоите в гильдии. Ссылка на гильдию: https://discord.gg/R7JMvfqZ")
 			return
 		}
+
 		if member == nil {
 			s.ChannelMessageSend(m.ChannelID, "Вы не состоите в гильдии. Ссылка на гильдию: https://discord.gg/R7JMvfqZ")
 			return

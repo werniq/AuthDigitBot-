@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"time"
 )
@@ -14,9 +13,7 @@ func (app *Application) AntiSpamFunction(s *discordgo.Session, m *discordgo.Mess
 		return
 	}
 
-	fmt.Println(time.Now().Unix())
-	fmt.Println(msg.CreatedAt.Unix())
-	if time.Now().Unix()-msg.CreatedAt.Unix() <= 3 {
+	if time.Now().Unix()-msg.CreatedAt.Unix() <= 2 {
 		s.ChannelMessageSend(m.ChannelID, "Слишко много сообщений за короткий промежуток времени. Пожалуйста, не спамьте.")
 	}
 }

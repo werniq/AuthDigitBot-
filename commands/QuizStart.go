@@ -9,16 +9,21 @@ import (
 )
 
 var (
-	quizChatId = "1101477795005222935"
+	quizChatId = "1064093774852141137"
 )
 
-func HasPerm(session *discordgo.Session, user *discordgo.User, channelID string, perm int64) bool {
-	perms, err := session.State.UserChannelPermissions(user.ID, channelID)
+func HasPerm(session *discordgo.Session, user *discordgo.User, guildID string, channelID string, perm int64) bool {
+	_, err := session.State.Guild(guildID)
 	if err != nil {
-		_, _ = session.ChannelMessageSend(channelID, fmt.Sprintf("Failed to retrieve perms: %s", err.Error()))
+		_, _ = session.ChannelMessageSend(channelID, fmt.Sprintf("Failed to retrieve guild: %s", err.Error()))
 		return false
 	}
-	return perms&perm != 0
+	member, err := session.State.Member(guildID, user.ID)
+	if err != nil {
+		_, _ = session.ChannelMessageSend(channelID, fmt.Sprintf("Failed to retrieve member: %s", err.Error()))
+		return false
+	}
+	return member.Permissions&perm == perm
 }
 
 func (app *Application) CreateQuiz(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -45,8 +50,8 @@ func (app *Application) CreateQuiz(s *discordgo.Session, m *discordgo.MessageCre
 			return
 		}
 
-		if HasPerm(s, m.Author, m.ChannelID, discordgo.PermissionBanMembers) {
-			_, _ = s.ChannelMessageSend(m.ChannelID, "You don't have permission to use this command.")
+		if HasPerm(s, m.Author, m.GuildID, m.ChannelID, discordgo.PermissionBanMembers) {
+			s.ChannelMessageSend(m.ChannelID, "You don't have permission to use this command.")
 			return
 		}
 
@@ -67,7 +72,7 @@ func (app *Application) CreateQuiz(s *discordgo.Session, m *discordgo.MessageCre
 
 		err := app.Db.CreateQuiz(quiz)
 		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Не удалось создать викторину.")
+			s.ChannelMessageSend(m.ChannelID, "Не удалось создать викторину."+err.Error())
 			return
 		}
 
@@ -77,10 +82,10 @@ func (app *Application) CreateQuiz(s *discordgo.Session, m *discordgo.MessageCre
 			return
 		}
 
-		s.ChannelMessageSend(quizChat.ID, `
-		Викторина началась!. Впиши '!quiz' <ответ> чтобы ответить на вопрос.
+		s.ChannelMessageSend(quizChat.ID, fmt.Sprintf(`
+		Викторина началась! Впиши '!quiz' <ответ> чтобы ответить на вопрос.
 		Найдите ответ на этот вопрос: 
-			%s`)
+			%s`, quiz.QuizQuestion+"?"))
 
 	}
 }

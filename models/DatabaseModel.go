@@ -461,7 +461,7 @@ func (m *DatabaseModel) UserLastMessageTimestamp(userId string) (*Message, error
 	if err != nil {
 		return nil, err
 	} else if err == sql.ErrNoRows {
-		return nil, err
+		return nil, nil
 	}
 
 	return message, nil
@@ -707,13 +707,24 @@ func (m *DatabaseModel) StoreUserInfo(userId, username, password, role, level st
 func (m *DatabaseModel) CreateQuiz(quiz *Quizes) error {
 	stmt := `INSERT INTO 
     			quizes( 
-    	       			quiz_questions, quiz_correct_answers, 
-    			        quiz_author, created_at)
+    	       			author_id, quiz_title, quiz_question, 
+    			        quiz_correct_answers, quiz_experience_reward,
+						quiz_server_currency_reward, created_at)
     		 VALUES 
     		    ($1, $2, 
-    		     $3, $4);`
+    		     $3, $4, 
+    		     $5, $6, $7);`
 
-	_, err := m.DB.Exec(stmt, quiz.QuizExperienceReward, quiz.QuizAnswers, quiz.AuthorId, quiz.CreatedAt)
+	//ID
+	//author_id
+	//quiz_title
+	//quiz_question
+	//quiz_correct_answers
+	//quiz_experience_reward
+	//quiz_server_currency_reward
+	//created_at
+
+	_, err := m.DB.Exec(stmt, quiz.AuthorId, quiz.QuizQuestion, quiz.QuizQuestion, quiz.QuizAnswers, quiz.QuizExperienceReward, quiz.QuizServerCurrencyReward, quiz.CreatedAt)
 	if err != nil {
 		return err
 	}
@@ -863,6 +874,7 @@ func (m *DatabaseModel) Config() (any, error) {
 	_, err = m.DB.Exec(`DROP TABLE IF EXISTS messages;`)
 	_, err = m.DB.Exec(`DROP TABLE IF EXISTS quizes;`)
 	_, err = m.DB.Exec(`DROP TABLE IF EXISTS ip_addresses;`)
+
 	_, err = m.DB.Exec(
 		`
 		CREATE TABLE IF NOT EXISTS users(
